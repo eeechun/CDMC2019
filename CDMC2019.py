@@ -47,24 +47,6 @@ def training(k):
     print("==========================================")
     return data
 
-'''def MeanEmbeddingVectorizer(model, data):
-    print("【MEAN EMBEDDING VECTORIZER】")
-    docVec_list=[]
-
-    for i in data:
-        count = 0.0
-        docVec = 0.0
-
-        for word in i:
-            count += 1
-            docVec += model.wv[word]
-
-        docVec /= count
-        docVec_list.append(docVec)
-
-    print(docVec_list[:])
-    return docVec_list'''
-
 def tfidf(trainData,labels):
     data=[]
     for s in trainData:
