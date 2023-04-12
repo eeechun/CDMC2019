@@ -14,7 +14,7 @@ from sklearn.linear_model import LinearRegression
 
 
 def readLabel(label):
-    df=pd.read_csv(r"C:\Users\tammy\lab\CDMC2019\CDMC2019\CDMC2019Task2Train.csv")
+    df=pd.read_csv(r"./CDMC2019Task2Train.csv")
     df=df.iloc[:,1:]
     #print(df.shape)
 
@@ -29,7 +29,7 @@ def training(k):
     data=[]
     for i in range(1,k):      
         i="%04d"%i
-        with open(r"C:\Users\tammy\lab\CDMC2019\CDMC2019\TRAIN\\"+str(i)+".seq") as f:
+        with open(r"./TRAIN/"+str(i)+".seq") as f:
             r=[]
             for line in f:  
                 r+=utils.simple_preprocess(line)
@@ -47,20 +47,7 @@ def training(k):
     print("==========================================")
     return data
 
-'''def vectorizer(model,word):
-    model=Word2Vec(word, sg=0)
-    vectorSize=model.wv.vector_size
-    wv_res=np.zeros(vectorSize)
-    print(wv_res)
-    ctr=1
-    for w in word:
-        if w in model.wv:
-            ctr+=1
-            wv_res+=model.wv[w]
-    wv_res=wv_res/ctr
-    return wv_res'''
-
-def MeanEmbeddingVectorizer(model, data):
+'''def MeanEmbeddingVectorizer(model, data):
     print("【MEAN EMBEDDING VECTORIZER】")
     docVec_list=[]
 
@@ -76,41 +63,7 @@ def MeanEmbeddingVectorizer(model, data):
         docVec_list.append(docVec)
 
     print(docVec_list[:])
-    return docVec_list
-
-def w2v(trainData,labels):
-
-    data=trainData[:]
-    data=np.array(data)
-    label=labels[:]
-    label=np.ravel(label)
-
-    model_cbow = Word2Vec(data, sg=0) #cbow
-    print("w2v model:")
-    print(model_cbow)
-    print("==========================================")
-    '''print("most similar")
-    model=model_cbow.wv.most_similar(positive=['exit'],topn=10)
-    print(model)
-    print("==========================================")'''
-
-    '''words=list(model_cbow.wv.index_to_key)
-    print(words)
-    #print(model_cbow.wv)
-    model_cbow.save('model.bin')
-    new_cbow=Word2Vec.load('model.bin')'''
-    
-    new_cbow=MeanEmbeddingVectorizer(model_cbow,data)
-    X_cbow_train,X_cbow_test,Y_cbow_train,Y_cbow_test= train_test_split(new_cbow,label,test_size=0.2)
-
-    #logistic regression
-    reg=LinearRegression()
-    reg.fit(X_cbow_train,Y_cbow_train)
-    Y_cbow_predict=reg.predict(X_cbow_test)
-    print("[linear regression][w2v]")
-    print("coefficients:",reg.coef_)
-    print("variance score:",accuracy_score(Y_cbow_test,Y_cbow_predict))
-    print("==========================================")
+    return docVec_list'''
 
 def tfidf(trainData,labels):
     data=[]
@@ -127,10 +80,10 @@ def tfidf(trainData,labels):
 
     label=labels[:]
     label=np.ravel(label)
+    return data, label
 
-    X_train,X_test,Y_train,Y_test= train_test_split(data,label,test_size=0.2)
-
-    #knn
+#knn
+def knn_model(X_train, Y_train, X_test, Y_test):
     knn = KNeighborsClassifier()
     knn.fit(X_train, Y_train)
     y_predict = knn.predict(X_test)
@@ -141,7 +94,8 @@ def tfidf(trainData,labels):
     print(f"recall score: {recall_score(Y_test,y_predict,average = 'weighted')}")
     print("==========================================")
 
-    #random forest model
+#random forest model
+def rf_model(X_train, Y_train, X_test, Y_test):
     forest = ensemble.RandomForestClassifier(n_estimators = 100)
     forest.fit(X_train, Y_train)
     y_predicted = forest.predict(X_test)
@@ -152,7 +106,8 @@ def tfidf(trainData,labels):
     print(f"recall score: {recall_score(Y_test,y_predicted,average = 'weighted')}")
     print("==========================================")
 
-    #svm
+#svm
+def svm_model(X_train, Y_train, X_test, Y_test):
     svm_lin=svm.SVC(kernel='linear')
     svm_lin.fit(X_train,Y_train)
     y_predicted=svm_lin.predict(X_test)
@@ -191,5 +146,8 @@ if __name__ == "__main__":
     label=readLabel(label)
     train=training(4168)
 
-    tfidf(train,label)
-    #w2v(train,label)
+    data, label = tfidf(train,label)
+    X_train, X_test, Y_train, Y_test = train_test_split(data,label,test_size=0.2)
+    knn_model(X_train, Y_train, X_test, Y_test)
+    rf_model(X_train, Y_train, X_test, Y_test)
+    svm_model(X_train, Y_train, X_test, Y_test)
